@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bapghnrdod2ic"
-path="res://.godot/imported/cumulet_icon_white.png-908a8cb6572454cc391541a7678a48d2.ctex"
+uid="uid://86ls24do50q5"
+path="res://.godot/imported/cumulet_text_curve_white.png-7c898af5102dad2968f5f09e1d92baff.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://addons/splashscreen_cumulet/textures/cumulet_icon_white.png"
-dest_files=["res://.godot/imported/cumulet_icon_white.png-908a8cb6572454cc391541a7678a48d2.ctex"]
+source_file="res://addons/splashscreen_cumulet/addons/splashscreen/textures/cumulet_text_curve_white.png"
+dest_files=["res://.godot/imported/cumulet_text_curve_white.png-7c898af5102dad2968f5f09e1d92baff.ctex"]
 
 [params]
 

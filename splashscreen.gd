@@ -5,6 +5,9 @@ extends Control
 const START_SCREEN_SCENE_PATH: String = "res://main.tscn"
 const CUMULET_COLOR := Color("0f34fc")
 
+@export var splash_screen_timer := 2
+@export var splash_screen_end_timer := .6
+
 var timer: float = 0.0
 var has_audio_played: bool = false
 
@@ -23,7 +26,9 @@ func _ready() -> void:
 	background_color.color = CUMULET_COLOR
 	cumulet_text.modulate.a = 0.0
 	var text_tween: Tween = create_tween()
-	text_tween.tween_property(cumulet_text, "modulate:a", 1.0, 1.0).set_trans(Tween.TRANS_CUBIC)
+	
+	text_tween.tween_property(cumulet_text, "modulate:a", 1.0, splash_screen_timer).set_trans(Tween.TRANS_CUBIC)
+	text_tween.parallel().tween_property(cumulet_logo, "rotation_degrees", 720, splash_screen_timer).set_trans(Tween.TRANS_SINE)
 	text_tween.finished.connect(_on_animation_finished)
 	splashscreen_finish.connect(on_splash_finished)
 	
@@ -37,8 +42,9 @@ func _process(delta: float) -> void:
 		has_audio_played = true
 	if timer > 10.0:
 		splashscreen_finish.emit()
-	cumulet_logo.rotation += 3.0 * delta
+	#cumulet_logo.rotation += 3.0 * delta
 	if is_animation_finished:
+		await get_tree().create_timer(splash_screen_end_timer).timeout
 		splashscreen_finish.emit()
 
 func on_splash_finished() -> void:
