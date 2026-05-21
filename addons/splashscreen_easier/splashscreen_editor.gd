@@ -3,11 +3,13 @@ extends EditorPlugin
 
 const SPLASH_SCENE := "res://addons/splashscreen_easier/splash_screen.tscn"
 const NEXT_SCENE_SETTING := "addons/splashscreen_cumulet/next_scene"
+const SKIP_SETTING := "addons/splashscreen_cumulet/skip_splash"
 
 var dock: VBoxContainer
 var label: Label
 var pick_button: Button
 var clear_button: Button
+var skip_checkbox: CheckBox
 var dialog: EditorFileDialog
 
 
@@ -15,13 +17,13 @@ func _enable_plugin() -> void:
 	print("[splashscreen_cumulet] _enable_plugin")
 	if ProjectSettings.get_setting("application/run/main_scene", "") != SPLASH_SCENE:
 		ProjectSettings.set_setting("application/run/main_scene", SPLASH_SCENE)
-	_ensure_next_scene_setting()
+	_ensure_settings()
 	ProjectSettings.save()
 
 
 func _enter_tree() -> void:
 	print("[splashscreen_cumulet] _enter_tree — building dock")
-	_ensure_next_scene_setting()
+	_ensure_settings()
 
 	dock = VBoxContainer.new()
 	dock.name = "Splashscreen"
@@ -45,6 +47,15 @@ func _enter_tree() -> void:
 	clear_button.text = "clear"
 	clear_button.pressed.connect(_clear_next_scene)
 	dock.add_child(clear_button)
+
+	dock.add_child(HSeparator.new())
+
+	skip_checkbox = CheckBox.new()
+	skip_checkbox.text = "skip splash on run"
+	skip_checkbox.tooltip_text = "when on, the project jumps straight to the next scene without showing the splash"
+	skip_checkbox.button_pressed = ProjectSettings.get_setting(SKIP_SETTING, false)
+	skip_checkbox.toggled.connect(_on_skip_toggled)
+	dock.add_child(skip_checkbox)
 
 	add_control_to_dock(DOCK_SLOT_LEFT_BR, dock)
 
@@ -74,7 +85,7 @@ func _exit_tree() -> void:
 
 # ---- internals ----
 
-func _ensure_next_scene_setting() -> void:
+func _ensure_settings() -> void:
 	if not ProjectSettings.has_setting(NEXT_SCENE_SETTING):
 		ProjectSettings.set_setting(NEXT_SCENE_SETTING, "")
 		ProjectSettings.add_property_info({
@@ -84,7 +95,14 @@ func _ensure_next_scene_setting() -> void:
 			"hint_string": "*.tscn,*.scn",
 		})
 		ProjectSettings.set_initial_value(NEXT_SCENE_SETTING, "")
-		ProjectSettings.save()
+	if not ProjectSettings.has_setting(SKIP_SETTING):
+		ProjectSettings.set_setting(SKIP_SETTING, false)
+		ProjectSettings.add_property_info({
+			"name": SKIP_SETTING,
+			"type": TYPE_BOOL,
+		})
+		ProjectSettings.set_initial_value(SKIP_SETTING, false)
+	ProjectSettings.save()
 
 
 func _refresh_label() -> void:
@@ -116,3 +134,9 @@ func _clear_next_scene() -> void:
 	ProjectSettings.save()
 	print("[splashscreen_cumulet] next scene cleared")
 	_refresh_label()
+
+
+func _on_skip_toggled(pressed: bool) -> void:
+	ProjectSettings.set_setting(SKIP_SETTING, pressed)
+	ProjectSettings.save()
+	print("[splashscreen_cumulet] skip splash -> ", pressed)

@@ -22,15 +22,33 @@ var is_animation_finished: bool = false
 signal splashscreen_finish
 
 const NEXT_SCENE_SETTING := "addons/splashscreen_cumulet/next_scene"
+const SKIP_SETTING := "addons/splashscreen_cumulet/skip_splash"
+
 func _ready() -> void:
+	splashscreen_finish.connect(on_splash_finished)
+
+	var skip: bool = bool(ProjectSettings.get_setting(SKIP_SETTING, false))
+	var next: String = str(ProjectSettings.get_setting(NEXT_SCENE_SETTING, ""))
+	print("[splashscreen_cumulet] runtime read — skip=", skip, " next='", next, "'")
+
+	# skip the whole splash if the editor toggle is on and a next scene is set
+	if skip:
+		if not next.is_empty():
+			call_deferred("_skip_to_next", next)
+			return
+		else:
+			push_warning("[splashscreen_cumulet] skip is on but no next scene set — playing splash anyway")
+
 	background_color.color = CUMULET_COLOR
 	cumulet_text.modulate.a = 0.0
 	var text_tween: Tween = create_tween()
-	
+
 	text_tween.tween_property(cumulet_text, "modulate:a", 1.0, splash_screen_timer).set_trans(Tween.TRANS_CUBIC)
 	text_tween.parallel().tween_property(cumulet_logo, "rotation_degrees", 720, splash_screen_timer).set_trans(Tween.TRANS_SINE)
 	text_tween.finished.connect(_on_animation_finished)
-	splashscreen_finish.connect(on_splash_finished)
+
+func _skip_to_next(path: String) -> void:
+	get_tree().change_scene_to_file(path)
 	
 func _on_animation_finished():
 	is_animation_finished = true
